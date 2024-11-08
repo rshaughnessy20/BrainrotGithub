@@ -9,6 +9,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.stage.Stage;
 
 //Import statements: Import various JavaFX components to create the user interface for the dashboard page.
@@ -40,11 +44,15 @@ public class DashboardPage {
         // `BorderPane` layout manager: Creates a root container with five regions (top, bottom, left, right, center).
         // Benefit: Allows specific arrangement of UI components, making it easy to structure the dashboard layout.
         
+        // Set the background color of the root layout to black
+        root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+
         // Center Text Area for Typing Input
         TextArea typingArea = new TextArea();
         typingArea.setPromptText("Please enter brainrot...");
         typingArea.setWrapText(true);
-        typingArea.setPrefSize(400, 200);
+        typingArea.setPrefSize(100, 200);
+        BorderPane.setMargin(typingArea, new Insets(75)); // Adds space around the text area
         root.setCenter(typingArea);
         // Center Region: Creates a `TextArea` in the center region of `BorderPane` for typing input.
         // - `setPromptText`: Displays placeholder text until the user types.
@@ -62,6 +70,7 @@ public class DashboardPage {
         // Benefit: `VBox` is used to easily stack the label and button for the quiz section in a vertical arrangement.
         
         Label quizLabel = new Label("Quiz Leaderboard");
+        quizLabel.setTextFill(Color.WHITE); // Set text color to white so we can f-ing see it
         Button playQuizButton = new Button("Play Quiz");
         quizBox.getChildren().addAll(quizLabel, playQuizButton);
         root.setLeft(quizBox);
@@ -80,6 +89,7 @@ public class DashboardPage {
         // - Benefit: Consistent styling across leaderboard sections keeps the UI visually cohesive and user-friendly.
         
         Label matchItLabel = new Label("Match-It Leaderboard");
+        matchItLabel.setTextFill(Color.WHITE); // Set color to white so we can see it
         Button playMatchItButton = new Button("Play Match-It");
         matchItBox.getChildren().addAll(matchItLabel, playMatchItButton);
         root.setRight(matchItBox);
@@ -92,7 +102,7 @@ public class DashboardPage {
 
 
         // Set up the main scene
-        scene = new Scene(root, 600, 400);
+        scene = new Scene(root, 800, 500);
         // Scene instantiation: Creates a new `Scene` using `root` (the `BorderPane` layout) with a width of 600px and height of 400px.
         // Benefit: A separate `Scene` for the dashboard allows flexibility if other scenes need to be added.
     
