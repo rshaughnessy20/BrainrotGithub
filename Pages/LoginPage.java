@@ -22,6 +22,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.Media; // new shit
 import javafx.scene.media.MediaPlayer; // new shit
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 
 //Import statements: Import specific classes from JavaFX (like Button, Label, Scene) and project files ('UserDatabase' and 'DashboardPage').
 //This allows us to use these classes without fully qualifying each one, keeping the code concise.
@@ -47,17 +52,17 @@ public class LoginPage {
 
     public LoginPage() {
     	// Constructor: Initializes an instance of 'LoginPage', setting up the UI elements within the layout grid.
-    	
-        // Initialize grid
+        
+    	// Initialize grid
         view = new GridPane();
         // This creates a grid layout for our UI elements (like labels, buttons, etc.)
         // GridPane instantiation: Creates a new GridPane layout for structuring UI elements.
         // Benefit: GridPane allows for organized positioning of items via rows and columns, ideal for forms like login pages.
-        
+
         view.setPadding(new Insets(10));
         // Insets setting: Sets padding around the grid, adding space between the grid’s borders and elements within it.
         // Benefit: Padding enhances visual clarity, giving the UI a cleaner look.
-        
+
         view.setVgap(10); // Adds vertical space between the rows
         view.setHgap(10); // Adds horizontal space between columns
         view.setAlignment(Pos.CENTER);
@@ -70,12 +75,12 @@ public class LoginPage {
         passwordField = new PasswordField(); // A password field where the user enters their password
         // Label and text field instantiations: Creates labels and fields for username and password input.
         // Benefit: Using specific field types (TextField for general text, PasswordField for password input) ensures proper input handling and security.
-        
+
         loginButton = new Button("Login"); // This is the button that users will click to log in
         loginButton.setOnAction(e -> loginUser()); // When the button is clicked, call the loginUser() method
         // Button instantiation and event handling: Creates a login button and sets an event listener for click actions.
         // Benefit: Lambda expressions allow for concise event-handling code (e -> loginUser()), enhancing readability.
-
+        
         registerButton = new Button("No account? Register wizard!");
         registerButton.setOnAction(e -> {
             RegistrationPage registrationPage = new RegistrationPage(stage);
@@ -87,13 +92,13 @@ public class LoginPage {
         // Add all the labels and fields to the grid
         view.add(usernameLabel, 0, 0); // Add the username label at row 0, column 0
         view.add(usernameField, 1, 0); // Add the username text field at row 0, column 1
-        view.add(passwordLabel, 0, 1); // Add the username text field at row 0, column 1
+        view.add(passwordLabel, 0, 1);  // Add the password label at row 0, column 1
         view.add(passwordField, 1, 1); // Add the password field at row 1, column 1
         view.add(loginButton, 1, 2); // Add the login button at row 2, column 1
         // Adding elements to the GridPane: Specifies each element’s grid position (column, row).
         // Benefit: Structured layout improves the user experience by organizing elements clearly.
-
-        // Add lightning bolt images
+        
+        // Add lightning bolt images, lightning didn't work so now they're exploding brains
         ImageView leftLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
         leftLightning.setFitWidth(100);
         leftLightning.setFitHeight(100);
@@ -102,10 +107,24 @@ public class LoginPage {
         rightLightning.setFitWidth(100);
         rightLightning.setFitHeight(100);
 
-        // Add wizard image
+        // Add cool wizard image
         ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/wizard.jpg"));
         wizardImage.setFitWidth(250);
         wizardImage.setFitHeight(300);
+
+        // Add an EPIC TITLE with flashing animation
+        Label titleLabel = new Label("EPIC LOGIN SCREEN");
+        titleLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
+        titleLabel.setTextFill(Color.WHITE);
+        titleLabel.setStyle("-fx-effect: dropshadow(gaussian, black, 5, 0.7, 0, 0);");
+
+        // Create flashing effect for the title
+        Timeline flashTimeline = new Timeline(
+            new KeyFrame(Duration.seconds(0.5), e -> titleLabel.setTextFill(Color.BLACK)),
+            new KeyFrame(Duration.seconds(1.0), e -> titleLabel.setTextFill(Color.WHITE))
+        );
+        flashTimeline.setCycleCount(Timeline.INDEFINITE);
+        flashTimeline.play();
 
         // Arranges the WIZARD layout
         VBox formLayout = new VBox(10, view, registerButton);
@@ -114,7 +133,7 @@ public class LoginPage {
         HBox lightningLayout = new HBox(leftLightning, formLayout, rightLightning);
         lightningLayout.setAlignment(Pos.CENTER);
 
-        VBox mainLayout = new VBox(10, lightningLayout, wizardImage);
+        VBox mainLayout = new VBox(10, titleLabel, lightningLayout, wizardImage);
         mainLayout.setAlignment(Pos.CENTER);
 
         // Add COOL FUCKING PURPLE
@@ -122,10 +141,10 @@ public class LoginPage {
         root.setStyle("-fx-background-color: purple;");
 
         // sets up EPIC WIZARD TO MUSIC TO LOOP TILL THE SUN EXPLODES
-        mediaPlayer = new MediaPlayer(new Media(new File("songs/130Specialz.mp3").toURI().toString()));
+        mediaPlayer = new MediaPlayer(new Media(new File("songs/DS3_Theme.mp3").toURI().toString()));
         mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
         mediaPlayer.play();
-        
+
         // Sets the scene
         stage.setScene(new Scene(root, 800, 600));
         stage.setTitle("Login Page");
@@ -136,10 +155,9 @@ public class LoginPage {
     	// Get the text the user typed into the fields
         String username = usernameField.getText();
         String password = passwordField.getText();
-
         // Check if the username and password are correct
         if (UserDatabase.validateUser(username, password)) {
-        	if (mediaPlayer != null) {
+            if (mediaPlayer != null) {
                 mediaPlayer.stop(); // Stop the music when logging in
             }
             new DashboardPage(stage);
