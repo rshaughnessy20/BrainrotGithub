@@ -92,13 +92,13 @@ public class DashboardPage {
         typingArea.setMaxHeight(150);
 
         // Load brainrot gif and set height and width, will have to find a way to reimplement
-        Image gifImage = new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif");
+        /* Image gifImage = new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif");
         ImageView leftGif = new ImageView(gifImage);
         ImageView rightGif = new ImageView(gifImage);
         leftGif.setFitWidth(100);
         leftGif.setFitHeight(100);
         rightGif.setFitWidth(100);
-        rightGif.setFitHeight(100);
+        rightGif.setFitHeight(100); */
         
         // Result area and image view for display
         resultArea = new TextArea();
@@ -248,7 +248,7 @@ public class DashboardPage {
         
      // Checks if the entered text is not empty (this apparently helps prevents unnecessary database queries for empty inputs)
         if (!enteredText.isEmpty()) {
-        	// Tries to connect to teh database
+        	// Tries to connect to the database
             try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             	// SQL query should select the "definition" and "imagename" of a slang word that matches what was entered
                 String query = "SELECT defintion, imagename FROM dictionary WHERE slang = ?";
