@@ -141,6 +141,7 @@ public class DashboardPage {
         
         quizLabel.setTextFill(Color.WHITE); // I set the color to white so I could see it
         Button playQuizButton = new Button("Play Quiz");
+        playQuizButton.setOnAction(e -> new QuizPage(stage)); // Navigates to QuizPage
         quizBox.getChildren().addAll(quizLabel, playQuizButton);
         root.setLeft(quizBox);
         // This is the Quiz Leaderboard Section, right now it's just the box and button for what it'll look like:
@@ -255,7 +256,7 @@ public class DashboardPage {
                         displayResult(definition, imageName);
                     } else {
                     	// If no record is found, gives this message and gets rid of previous image
-                        resultArea.setText("No definition found for this slang.");
+                        resultArea.setText("No definition found for this slang. The translator doesn't accept special characters like '.");
                         slangImageView.setImage(null);
                     }
                 }
