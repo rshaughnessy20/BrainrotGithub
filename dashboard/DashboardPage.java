@@ -100,7 +100,7 @@ public class DashboardPage {
         rightGif.setFitWidth(100);
         rightGif.setFitHeight(100);
         
-        // Result label and image view for display
+        // Result area and image view for display
         resultArea = new TextArea();
         resultArea.setWrapText(true);
         resultArea.setEditable(false);
@@ -141,7 +141,11 @@ public class DashboardPage {
         
         quizLabel.setTextFill(Color.WHITE); // I set the color to white so I could see it
         Button playQuizButton = new Button("Play Quiz");
-        playQuizButton.setOnAction(e -> new QuizPage(stage)); // Navigates to QuizPage
+        playQuizButton.setOnAction(e -> {
+        	stopMediaPlayers(); // will stop audio
+        	new QuizPage(stage); // will take me to quizpage
+        });
+        // Navigates to QuizPage
         quizBox.getChildren().addAll(quizLabel, playQuizButton);
         root.setLeft(quizBox);
         // This is the Quiz Leaderboard Section, right now it's just the box and button for what it'll look like:
@@ -230,6 +234,13 @@ public class DashboardPage {
 
         // Unmute only the specified player
         mediaPlayer.setMute(false);
+    }
+    
+    //Adding this to stop the music
+    private void stopMediaPlayers() {
+        mediaPlayer1.stop();
+        mediaPlayer2.stop();
+        mediaPlayer3.stop();
     }
     private void searchSlang() {
     	// Fetches the text entered in the typing area like a dog and trims the extra whitespace
