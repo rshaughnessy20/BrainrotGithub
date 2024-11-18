@@ -37,6 +37,7 @@ public class QuizPage {
     private static final String PASSWORD = "mha@auU,ta@+0J!";
     private TextArea typingArea; // area where we anwser
     private TextArea questionArea; // anwser where we're questioned
+    private MediaPlayer mediaPlayer; // BIG SHOT
 	private MediaPlayer mediaPlayer1; // correct ding
     private MediaPlayer mediaPlayer2; // incorrect buzzer
     private ImageView feedbackImageView; // Displays feedback images for correct/incorrect answers
@@ -105,6 +106,11 @@ public class QuizPage {
         feedbackImageView.setVisible(false); // Hides the image until it's too late
         centerBox.getChildren().add(feedbackImageView); // Add the ImageView to the layout
 
+        // sets up EPIC BIGSHOT MUSIC TO LOOP TILL THE SUN EXPLODES
+        mediaPlayer = new MediaPlayer(new Media(new File("songs/BIGSHOT.mp3").toURI().toString()));
+        mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
+        //mediaPlayer.play(); decided it was too pleasant to listen to
+        
         Scene scene = new Scene(root, 800, 500); // set DIMENSIONS
         stage.setScene(scene); // Attach the scene to the stage, you know this Ryan come on
         stage.setTitle("Quiz Page"); // Do I have to explain this to you too Ryan?
