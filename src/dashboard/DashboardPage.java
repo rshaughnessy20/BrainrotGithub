@@ -62,6 +62,93 @@ public class DashboardPage {
     // Constructor (DashboardPage): Initializes the dashboard with a `Stage` (window) passed in as a parameter.
     // - Benefit: Assigns the stage instance to the class and calls `setupUI()` to build the UI, separating layout from logic.
     // - Interaction: The `stage` reference is used throughout `setupUI()` to set up the dashboard page display.
+    
+    // Quiz Leaderboard Section
+    private VBox createQuizLeaderboard() {
+        VBox quizBox = new VBox(10);
+        quizBox.setPadding(new Insets(10));
+        quizBox.setAlignment(Pos.TOP_CENTER);
+        
+        Label quizLabel = new Label("Quiz Leaderboard");
+        quizLabel.setTextFill(Color.WHITE);
+        TextArea quizLeaderboard = new TextArea();
+        quizLeaderboard.setEditable(false);
+        quizLeaderboard.setPrefHeight(175);
+        quizLeaderboard.setPrefWidth(150);
+        
+        Button playQuizButton = new Button("Play Quiz");
+        playQuizButton.setOnAction(e -> {
+            stopMediaPlayers();
+            new QuizPage(stage);
+        });
+        
+        populateLeaderboard(quizLeaderboard, "quizscore", "Quiz");
+        quizBox.getChildren().addAll(quizLabel, quizLeaderboard, playQuizButton);
+        return quizBox;
+    }
+    
+    // Match-It Leaderboard Section
+    private VBox createMatchItLeaderboard() {
+        VBox matchItBox = new VBox(10);
+        matchItBox.setPadding(new Insets(10));
+        matchItBox.setAlignment(Pos.TOP_CENTER);
+        
+        Label matchItLabel = new Label("Match-It Leaderboard");
+        matchItLabel.setTextFill(Color.WHITE);
+        TextArea matchItLeaderboard = new TextArea();
+        matchItLeaderboard.setEditable(false);
+        matchItLeaderboard.setPrefHeight(175);
+        matchItLeaderboard.setPrefWidth(150);
+        
+        Button playMatchItButton = new Button("Play Match-It");
+        playMatchItButton.setOnAction(e -> {
+            stopMediaPlayers();
+            new MatchItPage(stage);
+        });
+        
+        populateLeaderboard(matchItLeaderboard, "gametype", "Match-It");
+        matchItBox.getChildren().addAll(matchItLabel, matchItLeaderboard, playMatchItButton);
+        return matchItBox;
+    }
+    
+    // Populate Leaderboard
+    private void populateLeaderboard(TextArea leaderboard, String scoreColumn, String gameType) {
+        // Determine which column to use based on the game type
+        String columnToFetch = "";
+        if (gameType.equals("Quiz")) {
+            columnToFetch = "quizscore";
+        } else if (gameType.equals("Match-It")) {
+            columnToFetch = "gametype";
+        }
+
+        // Create the query string dynamically based on scoreColumn and gameType
+        String query = String.format(
+            "SELECT u.userid, l.%s " +  // l.%s SHOULD BE replaced with the correct column (quizscore or gametype)
+            "FROM user u " +
+            "JOIN leaderboard l ON u.userid = l.userid " +
+            "WHERE l.gametype = '%s' " +
+            "ORDER BY l.%s DESC LIMIT 10;", columnToFetch, gameType, columnToFetch);
+
+        System.out.println("Query: " + query);  // Debugging: Print query to check its format
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            StringBuilder leaderboardContent = new StringBuilder("UserID | Score\n");
+            leaderboardContent.append("--------------\n");
+            while (rs.next()) {
+                String userid = rs.getString("userid");
+                int score = rs.getInt(columnToFetch);  // Fetch the score based on the dynamic column
+                leaderboardContent.append(String.format("%-6s | %-5d\n", userid, score));
+            }
+            leaderboard.setText(leaderboardContent.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("SQLException: " + e.getMessage()); // Debugging: Print the exception message
+            leaderboard.setText("Error loading leaderboard.");
+        }
+    }
 
     private void setupUI() {
         BorderPane root = new BorderPane();
@@ -90,15 +177,6 @@ public class DashboardPage {
         typingArea.setWrapText(true);
         typingArea.setPrefSize(300, 150);
         typingArea.setMaxHeight(150);
-
-        // Load brainrot gif and set height and width, will have to find a way to reimplement
-        /* Image gifImage = new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif");
-        ImageView leftGif = new ImageView(gifImage);
-        ImageView rightGif = new ImageView(gifImage);
-        leftGif.setFitWidth(100);
-        leftGif.setFitHeight(100);
-        rightGif.setFitWidth(100);
-        rightGif.setFitHeight(100); */
         
         // Result area and image view for display
         resultArea = new TextArea();
@@ -129,55 +207,10 @@ public class DashboardPage {
         // Add the HBox to the center region of BorderPane
         //root.setCenter(centerBox);
         
-        // Left - Quiz Leaderboard and Button
-        VBox quizBox = new VBox(10);
-        quizBox.setPadding(new Insets(10));
-        quizBox.setAlignment(Pos.TOP_CENTER);
-        Label quizLabel = new Label("Quiz Leaderboard");
-        // `VBox` layout manager: Organizes elements in a vertical arrangement with 10px spacing.
-        // - `setPadding`: Adds 10px padding around the box to create space.
-        // - `setAlignment`: Aligns the content at the top center, making the layout consistent and visually appealing.
-        // Benefit: `VBox` is used to easily stack the label and button for the quiz section in a vertical arrangement.
+        // Left and Right Leaderboard Sections
+        root.setLeft(createQuizLeaderboard());
+        root.setRight(createMatchItLeaderboard());
         
-        quizLabel.setTextFill(Color.WHITE); // I set the color to white so I could see it
-        Button playQuizButton = new Button("Play Quiz");
-        playQuizButton.setOnAction(e -> {
-        	stopMediaPlayers(); // will stop audio
-        	new QuizPage(stage); // will take me to quizpage
-        });
-        // Navigates to QuizPage
-        quizBox.getChildren().addAll(quizLabel, playQuizButton);
-        root.setLeft(quizBox);
-        // This is the Quiz Leaderboard Section, right now it's just the box and button for what it'll look like:
-        // - `Label`: Displays "Quiz Leaderboard" as a title for this section.
-        // - `Button`: Creates a "Play Quiz" button, which can later be connected to quiz functionality.
-        // - `getChildren().addAll`: Adds label and button to `VBox`.
-        // - `setLeft`: Places `quizBox` in the left region of `BorderPane`.
-        // Benefit: Modular design of each leaderboard section makes the UI code readable and allows easy extension if needed.
-        
-        // Right - Match-It Leaderboard and Button
-        VBox matchItBox = new VBox(10);
-        matchItBox.setPadding(new Insets(10));
-        // `VBox` layout manager: Configures the right section of the dashboard similarly to the left.
-        // - Benefit: Consistent styling across leaderboard sections keeps the UI visually cohesive and user-friendly.
-                
-        matchItBox.setAlignment(Pos.TOP_CENTER);
-        Label matchItLabel = new Label("Match-It Leaderboard");
-        matchItLabel.setTextFill(Color.WHITE);
-        Button playMatchItButton = new Button("Play Match-It");
-        playMatchItButton.setOnAction(e -> {
-        	stopMediaPlayers(); // will stop audio
-        	new MatchItPage(stage); // will take me to matchit
-        });
-        matchItBox.getChildren().addAll(matchItLabel, playMatchItButton);
-        root.setRight(matchItBox);
-        // Match-It Leaderboard Section:
-        // - `Label`: Displays "Match-It Leaderboard".
-        // - `Button`: Adds a button to start the "Match-It" game.
-        // - `getChildren().addAll`: Adds components to `VBox`.
-        // - `setRight`: Places `matchItBox` in the right region of `BorderPane`.
-        // Benefit: A separate section for each game provides clear navigation for the user and easy integration of additional games if needed.
-
         // Set up the main scene
         scene = new Scene(root, 800, 500);
         

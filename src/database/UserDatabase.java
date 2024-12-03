@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 //Import statements: Import classes from the `java.sql` package to enable MySQL database connectivity and SQL operations.
 //- `Connection`: Manages the connection to the database.
 //- `DriverManager`: Establishes a connection to the database using specified credentials.
@@ -91,6 +94,47 @@ public class UserDatabase {
         // Exception handling: Catches SQL exceptions and prints an error message in case of database validation issues.
         // Benefit: Improves reliability by handling errors gracefully, reducing the risk of application crashes.
     }
+    
+    // Method to retrieve the Quiz Leaderboard
+    public static List<String[]> getQuizLeaderboard() {
+        String query = "SELECT userid, quizscore FROM leaderboard ORDER BY quizscore DESC LIMIT 10;";
+        List<String[]> leaderboard = new ArrayList<>();
+
+        try (Connection connection = connect();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                String userid = String.valueOf(resultSet.getInt("userid"));
+                String quizscore = String.valueOf(resultSet.getInt("quizscore"));
+                leaderboard.add(new String[]{userid, quizscore});
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving Quiz Leaderboard: " + e.getMessage());
+        }
+        return leaderboard;
+    }
+
+    // Method to retrieve the Match-It Leaderboard
+    public static List<String[]> getMatchItLeaderboard() {
+        String query = "SELECT userid, gametype FROM leaderboard ORDER BY gametype DESC LIMIT 10;";
+        List<String[]> leaderboard = new ArrayList<>();
+
+        try (Connection connection = connect();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                String userid = String.valueOf(resultSet.getInt("userid"));
+                String gametype = String.valueOf(resultSet.getInt("gametype"));
+                leaderboard.add(new String[]{userid, gametype});
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving Match-It Leaderboard: " + e.getMessage());
+        }
+        return leaderboard;
+    }
+    
     public static void testConnection() { // This method should test our connection, duh. More specifically.
     	// Public method (testConnection): Tests the database connection by attempting to connect and handling potential exceptions.
         // Benefit: Provides an initial test to verify the database is accessible before running other operations.
