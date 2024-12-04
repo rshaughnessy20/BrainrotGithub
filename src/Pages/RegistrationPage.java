@@ -8,6 +8,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 //Import statements: Imports necessary classes and packages from JavaFX and custom classes.
 //- `UserDatabase`: Allows interaction with the database to manage user data, linking the UI with backend operations.
 //- `Scene`, `Stage`, `GridPane`: Essential components for creating JavaFX layouts and scenes.
@@ -88,21 +93,38 @@ public class RegistrationPage {
         // Get user input
         String username = usernameField.getText();
         String password = passwordField.getText();
-        // Retrieving user input: Gets text values from the input fields for registration.
-        // Interaction: These values will be used to create a new user entry in the database.
 
-        // Check if both fields are filled
+        // Validate input fields
         if (!username.isEmpty() && !password.isEmpty()) {
-            // Add the new user to the database
-            UserDatabase.addUser(username, password);
-            // Database interaction: Calls `addUser` from `UserDatabase` to insert a new user with the provided credentials.
-            // Benefit: Adding a new user only if fields are valid prevents empty or invalid entries in the database.
-            // Interaction: `UserDatabase` serves as the link between the UI and the database, handling data storage.
-            System.out.println("User registered successfully!"); // Print success message
+            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/brainrottranslator", "root", "mha@auU,ta@+0J!")) {
+                // Insert user into the 'user' table
+                String userInsertQuery = "INSERT INTO user (name, password) VALUES (?, ?)";
+                try (PreparedStatement userStmt = conn.prepareStatement(userInsertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    userStmt.setString(1, username);
+                    userStmt.setString(2, password);
+                    userStmt.executeUpdate();
+
+                    // Get the generated userid
+                    ResultSet rs = userStmt.getGeneratedKeys();
+                    if (rs.next()) {
+                        int userId = rs.getInt(1);
+
+                        // Insert default leaderboard entry
+                        String leaderboardInsertQuery = "INSERT INTO leaderboard (userid, quizscore, gametype) VALUES (?, 0, 0)";
+                        try (PreparedStatement leaderboardStmt = conn.prepareStatement(leaderboardInsertQuery)) {
+                            leaderboardStmt.setInt(1, userId);
+                            leaderboardStmt.executeUpdate();
+                        }
+                    }
+                }
+
+                System.out.println("User registered successfully and leaderboard updated!");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Error during registration.");
+            }
         } else {
-            System.out.println("Please enter a valid username and password."); // Print error message if fields are empty
+            System.out.println("Please enter a valid username and password.");
         }
-        // Validation and registration: Adds user to the database if fields are valid; otherwise, prints an error message.
-        // Benefit: The database check ensures only valid entries are added, keeping data integrity.
     }
 }
