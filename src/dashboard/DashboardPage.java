@@ -28,6 +28,8 @@ import java.io.File; // new shit for songs
 
 import java.sql.*; // For the sql
 
+import database.Session;
+
 //Import statements: Import various JavaFX components to create the user interface for the dashboard page.
 //- `Insets`: Adds padding around elements.
 //- `Pos`: Positions elements within containers.
@@ -56,6 +58,7 @@ public class DashboardPage {
     
     public DashboardPage(Stage stage) {
         this.stage = stage;
+        int userId = Session.getInstance().getCurrentUserId(); // Retrieve user ID from the session
         setupUI();
         setupMedia();
     }
@@ -82,7 +85,7 @@ public class DashboardPage {
             new QuizPage(stage);
         });
         
-        populateLeaderboard(quizLeaderboard, "quizscore", "Quiz");
+        populateLeaderboard(quizLeaderboard, "quizscore", 0);
         quizBox.getChildren().addAll(quizLabel, quizLeaderboard, playQuizButton);
         return quizBox;
     }
@@ -106,49 +109,39 @@ public class DashboardPage {
             new MatchItPage(stage);
         });
         
-        populateLeaderboard(matchItLeaderboard, "gametype", "Match-It");
+        populateLeaderboard(matchItLeaderboard, "gametype", 0);
         matchItBox.getChildren().addAll(matchItLabel, matchItLeaderboard, playMatchItButton);
         return matchItBox;
     }
     
-    // Populate Leaderboard
-    private void populateLeaderboard(TextArea leaderboard, String scoreColumn, String gameType) {
-        // Determine which column to use based on the game type
-        String columnToFetch = "";
-        if (gameType.equals("Quiz")) {
-            columnToFetch = "quizscore";
-        } else if (gameType.equals("Match-It")) {
-            columnToFetch = "gametype";
-        }
-
-        // Create the query string dynamically based on scoreColumn and gameType
+ // Populate Leaderboard
+    private void populateLeaderboard(TextArea leaderboard, String scoreColumn, int gameType) {
         String query = String.format(
-            "SELECT u.userid, l.%s " +  // l.%s SHOULD BE replaced with the correct column (quizscore or gametype)
+            "SELECT u.name, l.%s " +
             "FROM user u " +
             "JOIN leaderboard l ON u.userid = l.userid " +
-            "WHERE l.gametype = '%s' " +
-            "ORDER BY l.%s DESC LIMIT 10;", columnToFetch, gameType, columnToFetch);
-
-        System.out.println("Query: " + query);  // Debugging: Print query to check its format
+            "WHERE l.gametype = %d " +
+            "ORDER BY l.%s DESC LIMIT 10;", 
+            scoreColumn, gameType, scoreColumn);
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            StringBuilder leaderboardContent = new StringBuilder("UserID | Score\n");
-            leaderboardContent.append("--------------\n");
+            StringBuilder leaderboardContent = new StringBuilder("Name      | Score\n");
+            leaderboardContent.append("-----------------\n");
             while (rs.next()) {
-                String userid = rs.getString("userid");
-                int score = rs.getInt(columnToFetch);  // Fetch the score based on the dynamic column
-                leaderboardContent.append(String.format("%-6s | %-5d\n", userid, score));
+                String name = rs.getString("name");
+                int score = rs.getInt(scoreColumn);
+                leaderboardContent.append(String.format("%-9s | %-5d\n", name, score));
             }
             leaderboard.setText(leaderboardContent.toString());
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("SQLException: " + e.getMessage()); // Debugging: Print the exception message
             leaderboard.setText("Error loading leaderboard.");
         }
     }
+
 
     private void setupUI() {
         BorderPane root = new BorderPane();

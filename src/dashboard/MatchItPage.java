@@ -69,7 +69,10 @@ public class MatchItPage {
 
         // Back Button
         Button backButton = new Button("Back to Dashboard");
-        backButton.setOnAction(e -> new DashboardPage(stage)); // Navigates back to DashboardPage
+        backButton.setOnAction(e -> { // Navigates back to DashboardPage
+        	stopMediaPlayers();
+        	new DashboardPage(stage);
+        });
         HBox backBox = new HBox(backButton); // Container for the back button
         backBox.setAlignment(Pos.CENTER); // Center-align the button
         backBox.setPadding(new Insets(10));
@@ -206,5 +209,10 @@ public class MatchItPage {
             event.consume(); // Consume the event
         });
         node.setUserData(id); // Store the ID as user data
+    }
+    
+    //Adding this to stop the music
+    private void stopMediaPlayers() {
+        mediaPlayer.stop();
     }
 }

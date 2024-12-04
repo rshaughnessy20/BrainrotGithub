@@ -63,37 +63,24 @@ public class UserDatabase {
     }
 
     // Validate if a user exists with the given username and password
-    public static boolean validateUser(String username, String password) {
-        String query = "SELECT * FROM user WHERE name = ? AND password = ?";
-        // Public method (validateUser): Takes `username` and `password` as parameters, checks if they exist in the `user` table.
-        // SQL Query: Uses a parameterized `SELECT` query, enhancing security by preventing SQL injection.
-        // Benefit: Centralizes validation logic for user credentials, supporting modularity and reusability.
+    public static int validateUser(String username, String password) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            String query = "SELECT userid FROM user WHERE name = ? AND password = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, username);
+                stmt.setString(2, password);
 
-        try (Connection connection = connect();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-        	// `try-with-resources` block: Automatically closes resources after use.
-            // `Connection` object: Created by calling `connect()`, allowing communication with the database.
-            // `PreparedStatement` object: Prepares the SQL query, enabling parameterized input for secure validation.
-        	
-            statement.setString(1, username);
-            statement.setString(2, password);
-            // Binds `username` and `password` values to the placeholders in the query, improving security and maintainability.
-
-            ResultSet resultSet = statement.executeQuery();
-            // Executes the `SELECT` query and stores the result in a `ResultSet` object.
-            // `ResultSet`: Allows retrieval of query results row by row, if they exist.
-            
-            return resultSet.next(); // Returns true if a match is found, else false. But the more detailed version for my future self is right below.
-            // Checks if the query returned a result by calling `next()`, which returns `true` if a match is found.
-            // Benefit: Provides a simple boolean response for credential validation, facilitating integration with other code (e.g., LoginPage).
-
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    return rs.getInt("userid"); // Return user ID if login is successful
+                }
+            }
         } catch (SQLException e) {
-            System.err.println("Error validating user: " + e.getMessage());
-            return false;
+            e.printStackTrace();
         }
-        // Exception handling: Catches SQL exceptions and prints an error message in case of database validation issues.
-        // Benefit: Improves reliability by handling errors gracefully, reducing the risk of application crashes.
+        return -1; // Return -1 if login fails
     }
+
     
     // Method to retrieve the Quiz Leaderboard
     public static List<String[]> getQuizLeaderboard() {

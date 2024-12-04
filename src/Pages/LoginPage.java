@@ -1,8 +1,14 @@
 package Pages;
 
+import database.Session;
 import database.UserDatabase;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import dashboard.DashboardPage;
 import javafx.geometry.Insets;
@@ -52,7 +58,7 @@ public class LoginPage {
 
     public LoginPage() {
     	// Constructor: Initializes an instance of 'LoginPage', setting up the UI elements within the layout grid.
-        
+    	
     	// Initialize grid
         view = new GridPane();
         // This creates a grid layout for our UI elements (like labels, buttons, etc.)
@@ -152,14 +158,19 @@ public class LoginPage {
     }
 
     private void loginUser() {
-    	// Get the text the user typed into the fields
         String username = usernameField.getText();
         String password = passwordField.getText();
-        // Check if the username and password are correct
-        if (UserDatabase.validateUser(username, password)) {
+
+        int userId = UserDatabase.validateUser(username, password); // Get userid from database
+        if (userId != -1) {
             if (mediaPlayer != null) {
                 mediaPlayer.stop(); // Stop the music when logging in
             }
+
+            // Save user ID in the session
+            Session.getInstance().setCurrentUserId(userId);
+
+            // Navigate to Dashboard
             new DashboardPage(stage);
         } else {
             System.out.println("Invalid username or password."); // Print error if the credentials are wrong

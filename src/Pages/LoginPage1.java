@@ -1,5 +1,6 @@
 package Pages;
 
+import database.Session;
 import database.UserDatabase;
 
 import java.io.File;
@@ -152,19 +153,25 @@ public class LoginPage1 {
     }
 
     private void loginUser() {
-    	// Get the text the user typed into the fields
         String username = usernameField.getText();
         String password = passwordField.getText();
-        // Check if the username and password are correct
-        if (UserDatabase.validateUser(username, password)) {
+
+        int userId = UserDatabase.validateUser(username, password); // Get userid from database
+        if (userId != -1) {
             if (mediaPlayer != null) {
                 mediaPlayer.stop(); // Stop the music when logging in
             }
+
+            // Save user ID in the session
+            Session.getInstance().setCurrentUserId(userId);
+
+            // Navigate to Dashboard
             new DashboardPage(stage);
         } else {
             System.out.println("Invalid username or password."); // Print error if the credentials are wrong
         }
     }
+
 
     public GridPane getView() {
         return view; // This returns the entire layout (grid) for the login page

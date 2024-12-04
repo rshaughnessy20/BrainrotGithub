@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 
+import database.Session;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -43,9 +44,13 @@ public class QuizPage {
     private ImageView feedbackImageView; // Displays feedback images for correct/incorrect answers
     private int currentQuestionId = -1; // Tracks the current question ID from the database
     // The value -1 serves as an initial flag to indicate that no question has been loaded yet.
+    private int currentUserId = 1; // Placeholder: Set the current user's ID here
+    private int wrongAttempts = 0; // Tracks incorrect attempts for the current question
+
     
     public QuizPage(Stage stage) {
         this.stage = stage;
+        this.currentUserId = Session.getInstance().getCurrentUserId(); // Retrieve user ID from the session
         setupUI();
         loadRandomQuestion(); // Load a question when the page opens
     }
@@ -155,14 +160,23 @@ public class QuizPage {
                             mediaPlayer1.seek(Duration.ZERO);
                         	mediaPlayer1.play(); // plays correct buzzer
                         	showFeedbackImage("resources/no-cap.jpg"); // Gives me the correct image for a second
-                            questionArea.setText("Correct! Here's a new question:"); // not really necassary but whatever
+                        	updateQuizScore(100); // Increase score
+                        	questionArea.setText("Correct! Here's a new question:"); // not really necassary but whatever
                             loadRandomQuestion(); // Load a new question
                         } else {
                         	// Resets the incorrect sound buzzer each time
                         	mediaPlayer2.seek(Duration.ZERO);
                         	mediaPlayer2.play(); // plays incorrect buzzer
                         	showFeedbackImage("resources/cap.jpg"); // Gives me the incorrect image for a second
-                            typingArea.setText("Incorrect! Try again."); // not really necassary but whatever
+                        	updateQuizScore(-50); // Decrease score
+                            wrongAttempts++; // adds a wrong attempt point
+                            
+                            if (wrongAttempts == 3) {
+                                showAnswerAndNext(correctAnswer);
+                                wrongAttempts = 3;
+                            } else {
+                                typingArea.setText("Incorrect! Try again.");
+                            }
                         }
                     }
                 }
@@ -177,6 +191,36 @@ public class QuizPage {
         typingArea.clear(); // Clear the input field after each attempt
     }
     
+    private void updateQuizScore(int scoreChange) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Update the quizscore directly for the current user in the leaderboard
+            String updateQuery = "UPDATE leaderboard SET quizscore = quizscore + ? WHERE userid = ?";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                updateStmt.setInt(1, scoreChange);
+                updateStmt.setInt(2, currentUserId);
+                int rowsAffected = updateStmt.executeUpdate();
+                
+                // CHECKS WHICH USERID I AM WHICH IT DOESN'T
+                System.out.println("Current User ID: " + currentUserId);
+                System.out.println("Rows affected: " + rowsAffected);
+                
+                if (rowsAffected == 0) {
+                    // If no rows were updated, insert a new record for the user
+                    String insertQuery = "INSERT INTO leaderboard (userid, quizscore, gametype) VALUES (?, ?, ?)";
+                    try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                        insertStmt.setInt(1, currentUserId);
+                        insertStmt.setInt(2, scoreChange);
+                        insertStmt.setInt(3, 0); // Default gametype for Quiz
+                        insertStmt.executeUpdate();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            questionArea.setText("Error updating the score.");
+        }
+    }
+    
     // Displays feedback images (CORRECT or INCORRECT) for 1 second, needed to learn a whole new thing for this
     private void showFeedbackImage(String imagePath) {
         feedbackImageView.setImage(new Image(new File(imagePath).toURI().toString())); // Load the image
@@ -186,6 +230,17 @@ public class QuizPage {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> feedbackImageView.setVisible(false)));
         timeline.setCycleCount(1);  // Run the animation once
         timeline.play(); // Starts the animation
+    }
+    
+    // Shows correct anwser after three wrong ones
+    private void showAnswerAndNext(String correctAnswer) {
+        questionArea.setText("Correct Answer: " + correctAnswer);
+
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(5), e -> loadRandomQuestion())
+        );
+        timeline.setCycleCount(1);
+        timeline.play();
     }
 }
 
