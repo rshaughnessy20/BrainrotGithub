@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Random;
 
 import database.Session;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -149,6 +152,37 @@ public class MatchItPage {
         setRandomPosition(imageView); // Set a random position for the image
         makeDraggable(imageView, id); // Make the image draggable
 
+     // Define behavior when a draggable item is dragged over the imageView
+        imageView.setOnDragOver(event -> {
+            if (event.getGestureSource() != imageView && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+        
+        // Define behavior when a draggable item is dropped on the label
+        imageView.setOnDragDropped(event -> {
+            int draggedId = Integer.parseInt(event.getDragboard().getString()); // Get the ID of the dragged item
+            if (draggedId == id) { // Check if the IDs match
+                root.getChildren().remove(imageView); // Remove the label
+                root.getChildren().removeIf(node -> node instanceof Label && Integer.valueOf(draggedId).equals(node.getUserData())); // Remove the matching image
+                matches++; // Increment the match count
+                updateMatchItScore(50);
+                if (matches == 5) { // Check if all matches are completed
+                    Platform.runLater(this::loadRandomPairs); // Reload pairs
+                }
+            } else {
+                // Apply glow and shake effect for incorrect match
+                applyGlowAndShakeEffect(imageView);
+                root.getChildren().stream()
+                    .filter(node -> node instanceof ImageView && Integer.valueOf(draggedId).equals(node.getUserData()))
+                    .findFirst()
+                    .ifPresent(quoteLabel -> applyGlowAndShakeEffect(quoteLabel));
+            }
+            event.setDropCompleted(true); // Indicate the drop was completed
+            event.consume(); // Consume the event
+        });
+
         root.getChildren().add(imageView); // Add the image to the root
     }
 
@@ -182,6 +216,13 @@ public class MatchItPage {
                 if (matches == 5) { // Check if all matches are completed
                     Platform.runLater(this::loadRandomPairs); // Reload pairs
                 }
+            } else {
+                // Apply glow and shake effect for incorrect match
+                applyGlowAndShakeEffect(quoteLabel);
+                root.getChildren().stream()
+                    .filter(node -> node instanceof ImageView && Integer.valueOf(draggedId).equals(node.getUserData()))
+                    .findFirst()
+                    .ifPresent(imageView -> applyGlowAndShakeEffect(imageView));
             }
             event.setDropCompleted(true); // Indicate the drop was completed
             event.consume(); // Consume the event
@@ -190,6 +231,28 @@ public class MatchItPage {
         root.getChildren().add(quoteLabel); // Add the label to the root
     }
 
+    private void applyGlowAndShakeEffect(javafx.scene.Node node) {
+        // Apply a red glow effect
+        node.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+
+        // Create a shake animation
+        TranslateTransition shake = new TranslateTransition(Duration.millis(50), node);
+        shake.setFromX(0);
+        shake.setByX(10);
+        shake.setCycleCount(6);
+        shake.setAutoReverse(true);
+
+        // Create a timeline to reset the effect after a few seconds
+        Timeline resetTimeline = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
+            node.setStyle(""); // Reset styles
+            node.setTranslateX(0); // Reset position
+        }));
+
+        // Play animations
+        shake.play();
+        resetTimeline.play();
+    }
+    
     // Sets a random position for a node on the screen
     private void setRandomPosition(javafx.scene.Node node) {
         double x, y; // Variables for position

@@ -84,7 +84,7 @@ public class LoginPage1 {
         
         registerButton = new Button("No account? Register Jonkler!");
         registerButton.setOnAction(e -> {
-            RegistrationPage registrationPage = new RegistrationPage(stage);
+            RegistrationPage1 registrationPage = new RegistrationPage1(stage);
             stage.setScene(new Scene(registrationPage.getView(), 800, 600));
         });
         // Register button with event handling: Creates a button that navigates to the RegistrationPage on click, setting the scene to display it.

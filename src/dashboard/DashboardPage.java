@@ -121,6 +121,7 @@ public class DashboardPage {
         populateLeaderboard(matchItLeaderboard, "gametype");
         return matchItGrid;
     }
+    
 
     // Populate Leaderboard with a GridPane
     private void populateLeaderboard(GridPane leaderboard, String scoreColumn) {
