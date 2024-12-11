@@ -67,55 +67,69 @@ public class DashboardPage {
     // - Interaction: The `stage` reference is used throughout `setupUI()` to set up the dashboard page display.
     
     // Quiz Leaderboard Section
-    private VBox createQuizLeaderboard() {
-        VBox quizBox = new VBox(10);
-        quizBox.setPadding(new Insets(10));
-        quizBox.setAlignment(Pos.TOP_CENTER);
+    private GridPane createQuizLeaderboard() {
+        GridPane quizGrid = new GridPane();
+        quizGrid.setHgap(10); // Horizontal gap between columns
+        quizGrid.setVgap(10); // Vertical gap between rows
+        quizGrid.setPadding(new Insets(10));
         
         Label quizLabel = new Label("Quiz Leaderboard");
         quizLabel.setTextFill(Color.WHITE);
-        TextArea quizLeaderboard = new TextArea();
-        quizLeaderboard.setEditable(false);
+        GridPane.setConstraints(quizLabel, 0, 0, 2, 1); // Spans 2 columns in the first row
+
+        GridPane quizLeaderboard = new GridPane();
         quizLeaderboard.setPrefHeight(175);
         quizLeaderboard.setPrefWidth(150);
-        
+        GridPane.setConstraints(quizLeaderboard, 0, 1, 2, 1); // Spans 2 columns
+
         Button playQuizButton = new Button("Play Quiz");
         playQuizButton.setOnAction(e -> {
             stopMediaPlayers();
             new QuizPage(stage);
         });
-        
+        GridPane.setConstraints(playQuizButton, 0, 2); // Button below the leaderboard
+
+        quizGrid.getChildren().addAll(quizLabel, quizLeaderboard, playQuizButton);
         populateLeaderboard(quizLeaderboard, "quizscore");
-        quizBox.getChildren().addAll(quizLabel, quizLeaderboard, playQuizButton);
-        return quizBox;
+        return quizGrid;
     }
     
     // Match-It Leaderboard Section
-    private VBox createMatchItLeaderboard() {
-        VBox matchItBox = new VBox(10);
-        matchItBox.setPadding(new Insets(10));
-        matchItBox.setAlignment(Pos.TOP_CENTER);
+    private GridPane createMatchItLeaderboard() {
+        GridPane matchItGrid = new GridPane();
+        matchItGrid.setHgap(10);
+        matchItGrid.setVgap(10);
+        matchItGrid.setPadding(new Insets(10));
         
         Label matchItLabel = new Label("Match-It Leaderboard");
         matchItLabel.setTextFill(Color.WHITE);
-        TextArea matchItLeaderboard = new TextArea();
-        matchItLeaderboard.setEditable(false);
+        GridPane.setConstraints(matchItLabel, 0, 0, 2, 1);
+
+        GridPane matchItLeaderboard = new GridPane();
         matchItLeaderboard.setPrefHeight(175);
         matchItLeaderboard.setPrefWidth(150);
-        
+        GridPane.setConstraints(matchItLeaderboard, 0, 1, 2, 1);
+
         Button playMatchItButton = new Button("Play Match-It");
         playMatchItButton.setOnAction(e -> {
             stopMediaPlayers();
             new MatchItPage(stage);
         });
-        
+        GridPane.setConstraints(playMatchItButton, 0, 2);
+
+        matchItGrid.getChildren().addAll(matchItLabel, matchItLeaderboard, playMatchItButton);
         populateLeaderboard(matchItLeaderboard, "gametype");
-        matchItBox.getChildren().addAll(matchItLabel, matchItLeaderboard, playMatchItButton);
-        return matchItBox;
+        return matchItGrid;
     }
     
- // Populate Leaderboard
-    private void populateLeaderboard(TextArea leaderboard, String scoreColumn) {
+
+    // Populate Leaderboard with a GridPane
+    private void populateLeaderboard(GridPane leaderboard, String scoreColumn) {
+        leaderboard.getChildren().clear(); // Clear previous entries
+        leaderboard.setHgap(5); // Set horizontal gap
+        leaderboard.setVgap(2); // Set vertical gap
+        leaderboard.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1;"); // White background with black border
+
         String query = String.format(
             "SELECT u.name, l.%s " +
             "FROM user u " +
@@ -127,17 +141,23 @@ public class DashboardPage {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            StringBuilder leaderboardContent = new StringBuilder("Name      | Score\n");
-            leaderboardContent.append("-----------------\n");
+            // Adds headers
+            leaderboard.add(new Label("Name"), 0, 0);
+            leaderboard.add(new Label("Score"), 1, 0);
+
+            int row = 1; // Starts adding entries below headers
             while (rs.next()) {
                 String name = rs.getString("name");
                 int score = rs.getInt(scoreColumn);
-                leaderboardContent.append(String.format("%-9s | %-5d\n", name, score));
+
+                // Adds name and score to the GridPane
+                leaderboard.add(new Label(name), 0, row);
+                leaderboard.add(new Label(String.valueOf(score)), 1, row);
+                row++;
             }
-            leaderboard.setText(leaderboardContent.toString());
         } catch (SQLException e) {
             e.printStackTrace();
-            leaderboard.setText("Error loading leaderboard.");
+            leaderboard.add(new Label("Error loading leaderboard."), 0, 1);
         }
     }
 

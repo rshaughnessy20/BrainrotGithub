@@ -34,7 +34,7 @@ import java.sql.SQLException;
 //- `Scene`, `Stage`, `GridPane`: Essential components for creating JavaFX layouts and scenes.
 //- `Button`, `Label`, `PasswordField`, `TextField`: JavaFX UI controls for the registration form.
 
-public class RegistrationPage {
+public class RegistrationPage1 {
 	// Class declaration: Defines the `RegistrationPage` class, responsible for creating and managing the registration page UI.
     // Benefit: Centralizes all UI elements and logic for registration, making this class self-contained and focused.
 
@@ -48,7 +48,7 @@ public class RegistrationPage {
     private Button goToLoginButton;
     // Field declarations (private): UI components for user input (username and password fields) and navigation (buttons).
 
-    public RegistrationPage(Stage stage) {
+    public RegistrationPage1(Stage stage) {
     	 // Constructor: Initializes the registration page, setting up the UI elements and their layout.
 
         view = new GridPane(); // Creates the layout grid for the registration page
@@ -90,7 +90,7 @@ public class RegistrationPage {
         // Button to navigate back to the login page
         goToLoginButton = new Button("Go to Login");
         goToLoginButton.setOnAction(e -> {
-            LoginPage loginPage = new LoginPage(); // Create a new login page
+            LoginPage1 loginPage = new LoginPage1(); // Create a new login page
             stage.setScene(new Scene(loginPage.getView(), 800, 600)); // Switch to the login page scene
         });
         // Login button with event handling: Allows navigation to the login page when clicked.
@@ -101,8 +101,8 @@ public class RegistrationPage {
         view.add(usernameField, 1, 0);
         view.add(passwordLabel, 0, 1);
         view.add(passwordField, 1, 1);
-        view.add(goToLoginButton, 1, 2);
-        view.add(registerButton, 1, 3);
+        view.add(registerButton, 1, 2);
+        view.add(goToLoginButton, 1, 3);
         // Adding elements to the grid: Specifies each element's location in the grid by column and row.
         // Benefit: Positioning elements within the grid makes it easy to align form components.
 
@@ -116,12 +116,12 @@ public class RegistrationPage {
         rightLightning.setFitHeight(100);
 
         // Add cool wizard image
-        ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/wizard.jpg"));
+        ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/jonkler.gif"));
         wizardImage.setFitWidth(250);
         wizardImage.setFitHeight(300);
-
+        
         // Add an EPIC TITLE with flashing animation
-        Label titleLabel = new Label("REGISTER DINGUS");
+        Label titleLabel = new Label("REGISTER JONKLER");
         titleLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 40));
         titleLabel.setTextFill(Color.WHITE);
         titleLabel.setStyle("-fx-effect: dropshadow(gaussian, black, 5, 0.7, 0, 0);");
@@ -146,7 +146,7 @@ public class RegistrationPage {
 
         // Add COOL FUCKING PURPLE
         StackPane root = new StackPane(mainLayout);
-        root.setStyle("-fx-background-color: purple;");
+        root.setStyle("-fx-background-color: green;");
 
         // Sets the scene
         stage.setScene(new Scene(root, 800, 600));
