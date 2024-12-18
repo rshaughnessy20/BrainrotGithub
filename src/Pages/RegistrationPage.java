@@ -91,6 +91,8 @@ public class RegistrationPage {
         goToLoginButton = new Button("Go to Login");
         goToLoginButton.setOnAction(e -> {
             LoginPage loginPage = new LoginPage(); // Create a new login page
+            stage.close(); // Closes current stage
+            
             stage.setScene(new Scene(loginPage.getView(), 800, 600)); // Switch to the login page scene
         });
         // Login button with event handling: Allows navigation to the login page when clicked.
@@ -107,16 +109,16 @@ public class RegistrationPage {
         // Benefit: Positioning elements within the grid makes it easy to align form components.
 
      // Add lightning bolt images, lightning didn't work so now they're exploding brains
-        ImageView leftLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView leftLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         leftLightning.setFitWidth(100);
         leftLightning.setFitHeight(100);
 
-        ImageView rightLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView rightLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         rightLightning.setFitWidth(100);
         rightLightning.setFitHeight(100);
 
         // Add cool wizard image
-        ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/wizard.jpg"));
+        ImageView wizardImage = new ImageView(new Image("file:pictures/wizard.jpg"));
         wizardImage.setFitWidth(250);
         wizardImage.setFitHeight(300);
 
@@ -159,7 +161,7 @@ public class RegistrationPage {
     }
     // Method returning the layout: Returns the grid layout for the page.
     // Benefit: By exposing the view, this allows other classes (like Main) to display this page's layout.
-
+    
     private void registerUser() {
         // Get user input
         String username = usernameField.getText();

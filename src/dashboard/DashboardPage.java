@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image; // new shit
 import javafx.scene.image.ImageView; // new shit
@@ -200,13 +201,15 @@ public class DashboardPage {
         slangImageView = new ImageView();
         slangImageView.setFitWidth(200);
         slangImageView.setPreserveRatio(true);
+        
+        // Create the new slang list button
+        Button slangListButton = createSlangListButton();
 
-        // Search button
         Button searchButton = new Button("Search");
         searchButton.setOnAction(e -> searchSlang());
-
+        
         // VBox for Search Components
-        VBox centerBox = new VBox(10, typingArea, searchButton, resultArea, slangImageView); // Add slangImageView to VBox
+        VBox centerBox = new VBox(10, typingArea, slangListButton, searchButton, resultArea, slangImageView); // Add slangImageView to VBox
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setPadding(new Insets(20));
         root.setCenter(centerBox);
@@ -330,6 +333,53 @@ public class DashboardPage {
         }
     }
 
+    // Will give you a slang list
+    private Button createSlangListButton() {
+        Button slangListButton = new Button("Show Slang List");
+        slangListButton.setOnAction(e -> {
+            // Dialog for showing the slang list
+            Stage dialog = new Stage();
+            dialog.setTitle("Slang List");
+
+            // VBox to hold the list of slangs
+            VBox slangBox = new VBox(5); // 5px spacing between slangs
+            slangBox.setPadding(new Insets(10));
+            
+            // ScrollPane to make the list scrollable
+            ScrollPane scrollPane = new ScrollPane(slangBox);
+            scrollPane.setFitToWidth(true); // Ensures it stretches to the full width
+            scrollPane.setPrefHeight(300); // Adjust height as needed
+
+            // SQL Query to fetch and alphabetize slangs
+            String query = "SELECT slang FROM dictionary ORDER BY slang ASC";
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+
+                while (rs.next()) {
+                    String slang = rs.getString("slang");
+                    Button slangButton = new Button(slang);
+                    slangButton.setMaxWidth(Double.MAX_VALUE); // Make the button stretch to the VBox width
+                    slangButton.setOnAction(event -> {
+                        typingArea.setText(slang);
+                        dialog.close(); // Close the dialog when a slang is selected
+                    });
+                    slangBox.getChildren().add(slangButton);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                slangBox.getChildren().add(new Label("Error loading slang list."));
+            }
+
+            // Create a scene for the dialog
+            Scene dialogScene = new Scene(scrollPane, 300, 400); // Adjust dimensions as needed
+            dialog.setScene(dialogScene);
+            dialog.show();
+        });
+
+        return slangListButton;
+    }
+    
     private void displayResult(String definition, String imageName) {
     	// Displays the retrieved slang definition in the result area
         resultArea.setText(definition);
@@ -338,20 +388,20 @@ public class DashboardPage {
         if (imageName == null || imageName.isEmpty()) {
             System.out.println("Image name is empty or null.");
             // Sets a placeholder image in case no image is associated with the slang word
-            slangImageView.setImage(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+            slangImageView.setImage(new Image("file:pictures/exploding-brain.gif"));
             return; // Exits the method, no more processing needed
         }
 
         // Constructs the file path for the image using the specified directory and image name
-        String imagePath = "file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/" + imageName;
+        String imagePath = "file:pictures/" + imageName;
         System.out.println("Attempting to load image from: " + imagePath);
         // Creates a File object to verify the image file exists at the specified path
-        File imageFile = new File("C:/Users/Aweso/Downloads/Brainrot Translator/pictures/" + imageName);
+        File imageFile = new File("C:pictures/" + imageName);
         // Checks if the file does not exist or is not a valid file (helps stop loading errors)
         if (!imageFile.exists() || !imageFile.isFile()) {
             System.out.println("File does not exist at the specified path.");
             // Sets a placeholder image if the file is missing or invalid
-            slangImageView.setImage(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+            slangImageView.setImage(new Image("file:pictures/exploding-brain.gif"));
             return; // Exits the method, no more processing needed
         }
 
@@ -370,12 +420,12 @@ public class DashboardPage {
             System.out.println("NullPointerException while loading image: " + npe.getMessage());
             npe.printStackTrace(); // Print full stack trace for more context
             // Sets a placeholder image to handle the error gracefully
-            slangImageView.setImage(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+            slangImageView.setImage(new Image("file:pictures/exploding-brain.gif"));
         } catch (Exception e) { // Catches unexpected exceptions during image loading
             System.out.println("Error loading image: " + e.getMessage());
             e.printStackTrace(); // Print stack trace for unexpected errors
             // Sets a placeholder image to inform user of loading issue without crashing the application
-            slangImageView.setImage(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+            slangImageView.setImage(new Image("file:pictures/exploding-brain.gif"));
         }
     }
 }

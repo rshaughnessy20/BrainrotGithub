@@ -46,6 +46,8 @@ public class MatchItPage {
     private Stage stage; // The primary stage for this page
     private Pane root; // Root container for UI elements
     private MediaPlayer mediaPlayer; // BIG SHOT
+	private MediaPlayer mediaPlayer1; // correct ding
+    private MediaPlayer mediaPlayer2; // incorrect buzzer
     private HashMap<Integer, String> imageMap = new HashMap<>(); // Stores image names associated with IDs
     private HashMap<Integer, String> quoteMap = new HashMap<>(); // Stores quotes associated with IDs
     private int matches = 0; // Keeps track of the number of successful matches
@@ -71,6 +73,11 @@ public class MatchItPage {
         title.setLayoutX(250);
         title.setLayoutY(10);
         root.getChildren().add(title);
+        
+        // sets up CORRECT AND INCORRECT BUZZER
+        mediaPlayer1 = new MediaPlayer(new Media(new File("resources/correct.mp3").toURI().toString()));
+        mediaPlayer2 = new MediaPlayer(new Media(new File("resources/incorrect.mp3").toURI().toString()));
+
 
         // Back Button
         Button backButton = new Button("Back to Dashboard");
@@ -145,7 +152,7 @@ public class MatchItPage {
         String imageName = imageMap.get(id); // Get the image name
 
         // Create an ImageView for the image
-        ImageView imageView = new ImageView(new Image(new File("C:/Users/Aweso/Downloads/Brainrot Translator/pictures/" + imageName).toURI().toString()));
+        ImageView imageView = new ImageView(new Image(new File("pictures/" + imageName).toURI().toString()));
         imageView.setFitWidth(100); // Set the width of the image
         imageView.setFitHeight(100); // Set the height of the image
 
@@ -167,6 +174,8 @@ public class MatchItPage {
                 root.getChildren().remove(imageView); // Remove the label
                 root.getChildren().removeIf(node -> node instanceof Label && Integer.valueOf(draggedId).equals(node.getUserData())); // Remove the matching image
                 matches++; // Increment the match count
+                mediaPlayer1.seek(Duration.ZERO);
+                mediaPlayer1.play(); // plays correct buzzer
                 updateMatchItScore(50);
                 if (matches == 5) { // Check if all matches are completed
                     Platform.runLater(this::loadRandomPairs); // Reload pairs
@@ -174,6 +183,9 @@ public class MatchItPage {
             } else {
                 // Apply glow and shake effect for incorrect match
                 applyGlowAndShakeEffect(imageView);
+                mediaPlayer2.seek(Duration.ZERO);
+                mediaPlayer2.play(); // plays incorrect buzzer
+                updateMatchItScore(-50);
                 root.getChildren().stream()
                     .filter(node -> node instanceof ImageView && Integer.valueOf(draggedId).equals(node.getUserData()))
                     .findFirst()
@@ -213,12 +225,17 @@ public class MatchItPage {
                 root.getChildren().removeIf(node -> node instanceof ImageView && Integer.valueOf(draggedId).equals(node.getUserData())); // Remove the matching image
                 matches++; // Increment the match count
                 updateMatchItScore(50);
+                mediaPlayer1.seek(Duration.ZERO);
+                mediaPlayer1.play(); // plays correct buzzer
                 if (matches == 5) { // Check if all matches are completed
                     Platform.runLater(this::loadRandomPairs); // Reload pairs
                 }
             } else {
                 // Apply glow and shake effect for incorrect match
                 applyGlowAndShakeEffect(quoteLabel);
+                mediaPlayer2.seek(Duration.ZERO);
+                mediaPlayer2.play(); // plays incorrect buzzer
+                updateMatchItScore(-50);
                 root.getChildren().stream()
                     .filter(node -> node instanceof ImageView && Integer.valueOf(draggedId).equals(node.getUserData()))
                     .findFirst()

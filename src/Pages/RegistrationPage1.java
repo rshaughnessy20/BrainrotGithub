@@ -91,6 +91,7 @@ public class RegistrationPage1 {
         goToLoginButton = new Button("Go to Login");
         goToLoginButton.setOnAction(e -> {
             LoginPage1 loginPage = new LoginPage1(); // Create a new login page
+            stage.close(); // Closes current stage
             stage.setScene(new Scene(loginPage.getView(), 800, 600)); // Switch to the login page scene
         });
         // Login button with event handling: Allows navigation to the login page when clicked.
@@ -107,16 +108,16 @@ public class RegistrationPage1 {
         // Benefit: Positioning elements within the grid makes it easy to align form components.
 
      // Add lightning bolt images, lightning didn't work so now they're exploding brains
-        ImageView leftLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView leftLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         leftLightning.setFitWidth(100);
         leftLightning.setFitHeight(100);
 
-        ImageView rightLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView rightLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         rightLightning.setFitWidth(100);
         rightLightning.setFitHeight(100);
 
         // Add cool wizard image
-        ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/jonkler.gif"));
+        ImageView wizardImage = new ImageView(new Image("file:pictures/jonkler.gif"));
         wizardImage.setFitWidth(250);
         wizardImage.setFitHeight(300);
         

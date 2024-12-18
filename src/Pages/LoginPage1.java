@@ -85,6 +85,7 @@ public class LoginPage1 {
         registerButton = new Button("No account? Register Jonkler!");
         registerButton.setOnAction(e -> {
             RegistrationPage1 registrationPage = new RegistrationPage1(stage);
+            mediaPlayer.stop();
             stage.setScene(new Scene(registrationPage.getView(), 800, 600));
         });
         // Register button with event handling: Creates a button that navigates to the RegistrationPage on click, setting the scene to display it.
@@ -100,16 +101,16 @@ public class LoginPage1 {
         // Benefit: Structured layout improves the user experience by organizing elements clearly.
         
         // Add lightning bolt images, lightning didn't work so now they're exploding brains
-        ImageView leftLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView leftLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         leftLightning.setFitWidth(100);
         leftLightning.setFitHeight(100);
 
-        ImageView rightLightning = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/exploding-brain.gif"));
+        ImageView rightLightning = new ImageView(new Image("file:pictures/exploding-brain.gif"));
         rightLightning.setFitWidth(100);
         rightLightning.setFitHeight(100);
 
         // Add cool wizard image
-        ImageView wizardImage = new ImageView(new Image("file:/C:/Users/Aweso/Downloads/Brainrot Translator/pictures/jonkler.gif"));
+        ImageView wizardImage = new ImageView(new Image("file:pictures/jonkler.gif"));
         wizardImage.setFitWidth(250);
         wizardImage.setFitHeight(300);
 
